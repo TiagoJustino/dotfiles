@@ -8,6 +8,8 @@ if filereadable(expand("~/.vimrc.before"))
   source ~/.vimrc.before
 endif
 
+let g:yadr_using_unsolarized_terminal = 1
+
 " ================ General Config ====================
 
 set number                      "Line numbers are good
@@ -119,3 +121,11 @@ set nomodeline
 
 " ================ Custom Settings ========================
 so ~/.yadr/vim/settings.vim
+
+let g:yadr_disable_solarized_enhancements = 1
+colorscheme delek
+
+set shell=/usr/bin/zsh\ -l
+
+set clipboard=unnamedplus
+au BufNewFile,BufRead *.ndjson set filetype=json

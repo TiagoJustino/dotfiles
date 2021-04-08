@@ -14,3 +14,5 @@ vim/sessions
 .netrwhist
 bin/subl
 tags
+justinobin/node_modules/
+justinobin/package-lock.json

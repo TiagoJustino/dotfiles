@@ -1,0 +1,95 @@
+#!/usr/bin/env node
+
+chalk = require('chalk');
+readline = require('readline');
+child_process = require('child_process');
+
+currentLine = '';
+intervalid = null;
+startLine = new Date();
+startExec = new Date();
+inputstream = process.stdin;
+cmd = '';
+
+if(process.argv.length > 2) {
+  [, , ...childargs] = process.argv;
+  cmd = childargs.join(' ');
+  child = child_process.spawn(cmd);
+  inputstream = child.stdout;
+}
+
+linesToWrite = [`started ${chalk.red(cmd)}`];
+
+var lineReader = readline.createInterface({
+  input: inputstream
+});
+
+lineReader.on('line', function (line) {
+  linesToWrite.push(line);
+  startLine = new Date();
+});
+
+function pad(num, size) {
+  var s = num+"";
+  while (s.length < size) s = "0" + s;
+  return s;
+}
+
+function writeTimeDiff(ms, color) {
+  s = Math.floor(ms / 1000);
+  h = Math.floor(s / (60 * 60));
+  s -= 60 * 60 * h;
+  m = Math.floor(s / 60);
+  s -= 60 * m;
+	process.stdout.write(color(`${pad(h, 2)}:${pad(m, 2)}:${pad(s, 2)} `));
+}
+
+first = true;
+function writeLine() {
+	now = new Date();
+	while (linesToWrite.length > 1) {
+		currentLine = linesToWrite.shift();
+		if(!first) {
+			process.stdout.write('\n');
+		} else {
+			first = false;
+		}
+    writeTimeDiff(now - startExec, chalk.blue);
+    writeTimeDiff(now - startLine, chalk.yellow);
+		process.stdout.write(currentLine);
+	}
+	if (linesToWrite.length > 0) {
+		currentLine = linesToWrite.shift();
+		if(!first) {
+			process.stdout.write('\n');
+		} else {
+			first = false;
+		}
+    writeTimeDiff(now - startExec, chalk.blue);
+    writeTimeDiff(now - startLine, chalk.yellow);
+		process.stdout.write(currentLine);
+	} else {
+		process.stdout.clearLine();
+		process.stdout.cursorTo(0);
+    writeTimeDiff(now - startExec, chalk.blue);
+    writeTimeDiff(now - startLine, chalk.yellow);
+		process.stdout.write(currentLine);
+	}
+}
+
+lineReader.on('close', function(line) {
+	now = new Date();
+	if(intervalid) {
+		clearInterval(intervalid);
+	}
+  writeLine();
+	process.stdout.write('\n');
+  writeTimeDiff(now - startExec, chalk.blue);
+  writeTimeDiff(now - startLine, chalk.yellow);
+	process.stdout.write(`finished ${chalk.red(cmd)}`);
+	process.stdout.write('\n');
+});
+
+writeLine();
+intervalid = setInterval(writeLine, 1000);
+

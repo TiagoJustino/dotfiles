@@ -1,0 +1,39 @@
+#!/bin/sh
+
+detox --remove-trailing -r *
+
+RENAME=$(echo rename)
+
+if command -v perl-rename &> /dev/null ; then
+  RENAME=$(echo perl-rename)
+fi
+
+find -depth -mindepth 1 -maxdepth 1 -type d | xargs $RENAME 's/^\.\///; y/A-Z/a-z/; y/,_\.=/----/; s/-$//; s/-\././; s/-[-]*/-/g; s/$/-renaming/'
+find -depth -mindepth 1 -maxdepth 1 -type d -iname "*-renaming" | xargs $RENAME 's/-renaming$//'
+
+find -depth -mindepth 2 -maxdepth 2 -type d | xargs $RENAME 's/^\.\///; y/A-Z/a-z/; y/,_\.=/----/; s/-$//; s/-\././; s/-[-]*/-/g; s/$/-renaming/'
+find -depth -mindepth 2 -maxdepth 2 -type d -iname "*-renaming" | xargs $RENAME 's/-renaming$//'
+
+find -depth -mindepth 3 -maxdepth 3 -type d | xargs $RENAME 's/^\.\///; y/A-Z/a-z/; y/,_\.=/----/; s/-$//; s/-\././; s/-[-]*/-/g; s/$/-renaming/'
+find -depth -mindepth 3 -maxdepth 3 -type d -iname "*-renaming" | xargs $RENAME 's/-renaming$//'
+
+find -depth -mindepth 4 -maxdepth 4 -type d | xargs $RENAME 's/^\.\///; y/A-Z/a-z/; y/,_\.=/----/; s/-$//; s/-\././; s/-[-]*/-/g; s/$/-renaming/'
+find -depth -mindepth 4 -maxdepth 4 -type d -iname "*-renaming" | xargs $RENAME 's/-renaming$//'
+
+find -depth -mindepth 5 -maxdepth 5 -type d | xargs $RENAME 's/^\.\///; y/A-Z/a-z/; y/,_\.=/----/; s/-$//; s/-\././; s/-[-]*/-/g; s/$/-renaming/'
+find -depth -mindepth 5 -maxdepth 5 -type d -iname "*-renaming" | xargs $RENAME 's/-renaming$//'
+
+find -type f | xargs $RENAME 's/\+/-/g; s/^\.\///; y/A-Z/a-z/; y/,_=/---/; s/\.(?![^.]+$)/-/g; s/-$//; s/-\././; s/-[-]*/-/g; s/$/-renaming/'
+find -depth -mindepth 1 -type f -iname "*-renaming" | xargs $RENAME 's/-renaming$//'
+
+find -type f -iname "*-en.srt" | xargs $RENAME "s/-en\.srt/.en.srt/"
+find -type f -iname "*-english.srt" | xargs $RENAME "s/-english\.srt/.en.srt/"
+find -type f -iname "*-es.srt" | xargs $RENAME "s/-es\.srt/.es.srt/"
+find -type f -iname "*-spanish.srt" | xargs $RENAME "s/-spanish\.srt/.es.srt/"
+find -type f -iname "*-pt-br.srt" | xargs $RENAME "s/-pt-br\.srt/.pt-br.srt/"
+
+find -type f -iname "*-en.sub" | xargs $RENAME "s/-en\.sub/.en.sub/"
+find -type f -iname "*-english.sub" | xargs $RENAME "s/-english\.sub/.en.sub/"
+find -type f -iname "*-es.sub" | xargs $RENAME "s/-es\.sub/.es.sub/"
+find -type f -iname "*-spanish.sub" | xargs $RENAME "s/-spanish\.sub/.es.sub/"
+find -type f -iname "*-pt-br.sub" | xargs $RENAME "s/-pt-br\.sub/.pt-br.sub/"

@@ -1,0 +1,19 @@
+#!/bin/sh
+
+year=$(date +"%Y")
+week=$(echo `date +"%U"` "+1" | bc)
+lastweek=$(echo `date +"%U" -d "2020-12-31T12:00:00.000Z"` "+1" | bc)
+day=$(echo `date +"%w"` "+1" | bc)
+date1=$(date +"%Y-%m-%d_%H:%M")
+tz=$(cat /etc/timezone)
+date2=$(date -u +"%Y-%m-%d_%H:%M_Z")
+dname=$(date +"%A")
+nday=$(date +"%j")
+lastday=$(date +"%j" -d "$year-12-31T12:00:00.000Z")
+
+echo "$date1 $tz"
+echo "$date2"
+echo "$dname $day / 7"
+echo "dia $nday / $lastday"
+echo "senama $week / $lastweek"
+

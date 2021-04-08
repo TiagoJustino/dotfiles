@@ -1,0 +1,36 @@
+#!/bin/bash
+
+if [ $# -eq 0 ] ; then
+  echo subdwn .
+  subdwn .
+else
+  for arg in "$@"; do
+    path=$(realpath "$arg")
+    if [[ -d "$path" ]]; then
+      find "$path" \( -iname "*.mp4" -or -iname "*.mkv" -or -iname "*.avi" -or -iname "*.flv" \) -type f | while read file; do
+        fpath=$(realpath "$file")
+        echo subdwn "$fpath"
+        subdwn "$fpath"
+      done
+    elif [[ -f "$path" ]]; then
+      echo subliminal "$path"
+      subliminal \
+        --addic7ed tiagojustino svljm05IFJ37 \
+        --opensubtitles tiagojustino p6D6x2m3kaMU \
+        --omdb 4a836778 \
+        download \
+        -vv \
+        -l en -l pt-br \
+        -p argenteam -p opensubtitles -p opensubtitlesvip \
+        -p podnapisi -p shooter -p tvsubtitles \
+        -r hash -r metadata -r omdb -r tvdb \
+        -e utf8 \
+        -hi \
+        "$path"
+    else
+      echo "==================================================="
+      echo "$path is not valid"
+      echo "==================================================="
+    fi
+  done
+fi

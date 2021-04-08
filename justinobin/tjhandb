@@ -1,0 +1,38 @@
+#!/bin/sh
+
+CONFJSON="$HOME/bin/handbrake-config.json"
+BASEDIR="$HOME/mnt/d/raspberry"
+INDIR="$BASEDIR/toconvert"
+OUTDIR="$BASEDIR/toupload"
+BAKDIR="$BASEDIR/bak"
+# HandBrakeCLI --preset-import-file $CONFJSON -i you-only-live-twice-1967-720p-bluray-x264-ac3-ozlem.mp4 -o
+
+infiles=`find "$INDIR" \( -iname "*.mp4" -or -iname "*.mkv" -or -iname "*.avi" -or -iname "*.flv" \) -type f | sort`
+for infile in $infiles; do
+  infname=$(basename $infile)
+  ind=$(dirname $infile)
+  outd=$(echo $ind | sed "s:$INDIR:$OUTDIR:" | sed "s/1080p/480p/" | sed "s/720p/480p/")
+  inext=$(echo $infname | sed "s/.*\.\([^\.]*$\)/\1/")
+  infnoext=$(echo $infname | sed "s/\.$inext$//")
+  outfnoext=$(echo $infnoext | sed "s/1080p/480p/" | sed "s/720p/480p/")
+  outfname=$(echo "$outfnoext.mp4")
+  outfile=$(echo "$outd/$outfname")
+  mkdir -p $outd
+  subtlist=$(ls $ind/$infnoext* | grep -v "$infile")
+  if [[ -f "$outfile" ]]; then
+    echo "$outfile" already exists! Skipping...
+  else
+    for subt in $subtlist; do
+      outsubt=$(echo "$outd/"`basename $subt | sed "s/1080p/480p/" | sed "s/720p/480p/"`)
+      cp $subt $outsubt
+    done
+    echo $outfile >> ~/.tjhandb-job-history
+    echo ===starting=== $infile
+    HandBrakeCLI --preset-import-file $CONFJSON -i $infile -o $outfile
+    echo ===finished=== $outfile
+    bdir=$(echo $ind | sed "s:$INDIR:$BAKDIR:")
+    mkdir -p $bdir
+    mv -n $infile $bdir
+  fi
+done
+

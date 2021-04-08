@@ -1,0 +1,49 @@
+#!/bin/bash
+
+if [ $# -eq 0 ] ; then
+  vheight .
+else
+  for arg in "$@"; do
+    path=$(realpath "$arg")
+    if [[ -d "$path" ]]; then
+      find "$path" \( -iname "*.mp4" -or -iname "*.mkv" -or -iname "*.avi" -or -iname "*.flv" \) -type f | while read file; do
+        fpath=$(realpath "$file")
+        vheight "$fpath"
+      done
+    elif [[ -f "$path" ]]; then
+      h=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=s=x:p=0 $path)
+      res=$(node -e "console.log($h < 600 ? 480 : ($h > 900 ? 1080 : 720) )")
+      otherres=(`node -e "console.log([480, 720, 1080].filter(item => item !== $res).join(' '))"`)
+      grepret=$(basename $path | grep "${res}p")
+      if ! [[ -n "$grepret" ]] ; then
+        otherresa=${otherres[1]}
+        otherresb=${otherres[b]}
+        # echo otherresa $otherresa
+        # echo otherresb $otherresb
+        grepreta=$(basename $path | grep "${otherresa}p")
+        grepretb=$(basename $path | grep "${otherresb}p")
+        # echo grepreta $grepreta
+        # echo grepretb $grepretb
+        oldfname=$(basename $path)
+        newfname=$(echo $oldfname)
+        # echo newfname $newfname
+        if [[ -n "$grepreta" ]] ; then
+          newfname=`echo $oldfname | sed "s/${otherresa}p/${res}p/"`
+          # echo newfname $newfname
+        elif [[ -n "$grepretb" ]] ; then
+          newfname=`echo $oldfname | sed "s/${otherresb}p/${res}p/"`
+          # echo newfname $newfname
+        else
+          newfname=`echo $oldfname | sed "s/\(.*\)\.\([^\.]*$\)/\1-${res}p.\2/"`
+          # echo newfname $newfname
+        fi
+        echo mv '-n' $path `dirname $path`"/$newfname"
+        mv -n $path `dirname $path`"/$newfname"
+      fi
+    else
+      echo "==================================================="
+      echo "$path is not valid"
+      echo "==================================================="
+    fi
+  done
+fi

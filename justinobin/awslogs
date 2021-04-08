@@ -1,0 +1,26 @@
+#!/bin/sh
+
+lambdaname=$1
+
+logstreamname=$(aws \
+  logs \
+  describe-log-streams \
+  --log-group-name /aws/lambda/$lambdaname \
+  --order-by LastEventTime \
+  --descending \
+  --page-size 1 \
+  --max-items 1 \
+  | grep logStreamName \
+  | sed "s/[^:]*: //" \
+  | sed "s/\"//" \
+  | sed "s/\",//" \
+)
+
+aws \
+  --no-cli-pager \
+  --color on \
+  logs \
+  get-log-events \
+  --log-group-name /aws/lambda/$lambdaname \
+  --log-stream-name $logstreamname \
+  | sed "s/\\\n/\n/g"
